@@ -1,25 +1,24 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import SplashScreen from './screens/SplashScreen';
+import MainMenu from './screens/MainMenu';
+import GameplayScreen from './screens/GameplayScreen';
 
-function App() {
+const App = () => {
+  const [currentScreen, setCurrentScreen] = useState('splash');
+
+  const changeScreen = (screen) => setCurrentScreen(screen);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {currentScreen === 'splash' && (
+        <SplashScreen goToMenu={() => changeScreen('menu')} />
+      )}
+      {currentScreen === 'menu' && (
+        <MainMenu goToGameplay={() => changeScreen('gameplay')} />
+      )}
+      {currentScreen === 'gameplay' && <GameplayScreen goToMenu={() => changeScreen('menu')} />}
     </div>
   );
-}
+};
 
 export default App;
