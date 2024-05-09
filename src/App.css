@@ -36,3 +36,19 @@
     transform: rotate(360deg);
   }
 }
+
+.flash {
+  animation: flashEffect 0.3s ease-in-out;
+}
+
+@keyframes flashEffect {
+  0% {
+    background-color: #ffffff;
+  }
+  50% {
+    background-color: #ff0000;
+  }
+  100% {
+    background-color: #ffffff;
+  }
+}

@@ -1,0 +1,31 @@
+.flash-red {
+  animation: flashRedEffect 0.3s ease-in-out;
+}
+
+@keyframes flashRedEffect {
+  0% {
+    background-color: #ffffff;
+  }
+  50% {
+    background-color: #ff0000;
+  }
+  100% {
+    background-color: #ffffff;
+  }
+}
+
+.flash-green {
+  animation: flashGreenEffect 0.3s ease-in-out;
+}
+
+@keyframes flashGreenEffect {
+  0% {
+    background-color: #ffffff;
+  }
+  50% {
+    background-color: #00ff00;
+  }
+  100% {
+    background-color: #ffffff;
+  }
+}

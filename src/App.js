@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import SplashScreen from './screens/SplashScreen';
+import PhaserContainer from './screens/PhaserContainer';
 import MainMenu from './screens/MainMenu';
 import GameplayScreen from './screens/GameplayScreen';
 
@@ -10,13 +11,9 @@ const App = () => {
 
   return (
     <div className="App">
-      {currentScreen === 'splash' && (
-        <SplashScreen goToMenu={() => changeScreen('menu')} />
-      )}
-      {currentScreen === 'menu' && (
-        <MainMenu goToGameplay={() => changeScreen('gameplay')} />
-      )}
-      {currentScreen === 'gameplay' && <GameplayScreen goToMenu={() => changeScreen('menu')} />}
+      {currentScreen === 'splash' && <SplashScreen goToMenu={() => changeScreen('mainmenu')} />}
+      {currentScreen === 'mainmenu' && <MainMenu goToGameplay={() => changeScreen('gameplay')} />}
+      {currentScreen === 'gameplay' && <PhaserContainer />}
     </div>
   );
 };
