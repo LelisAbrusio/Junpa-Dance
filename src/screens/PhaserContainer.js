@@ -21,6 +21,12 @@ const PhaserContainer = () => {
 
     gameRef.current = new Phaser.Game(config);
 
+    const resize = () => {
+      gameRef.current.scale.resize(window.innerWidth, window.innerHeight);
+    };
+
+    window.addEventListener('resize', resize);
+
     return () => {
       gameRef.current.destroy(true);
     };
@@ -36,6 +42,7 @@ const PhaserContainer = () => {
   let arrows = [];
   const maxArrows = 3;
   const beatsPerMeasure = 4;
+  
 
   const preload = function () {
     this.load.audio('danceTrack', 'assets/musics/danceTrack.mp3');
@@ -46,6 +53,8 @@ const PhaserContainer = () => {
     this.load.image('arrowDown', 'assets/images/arrowDown.png');
     this.load.image('arrowLeft', 'assets/images/arrowLeft.png');
     this.load.image('arrowRight', 'assets/images/arrowRight.png');
+    this.load.image('buttonA', 'assets/images/buttonA.png');
+    this.load.image('buttonB', 'assets/images/buttonB.png');
   };
 
   const create = function () {
@@ -65,12 +74,13 @@ const PhaserContainer = () => {
     // Background
     this.add.image(400, 300, 'background');
   
-    // Rectangle for flashing effect
-    beatRectangle = this.add.rectangle(700, 50, 100, 100, 0xff0000);
-    beatRectangle.setAlpha(0);
 
     // Rhythm bar
-    rhythmBar = this.add.image(400, 500, 'rhythmBar').setDisplaySize(800, 60);;
+    rhythmBar = this.add.image(400, 500, 'rhythmBar').setDisplaySize(800, 60);
+
+    // Rectangle for flashing effect
+    beatRectangle = this.add.rectangle(600, 500, 100, 100, 0xff0000);
+    beatRectangle.setAlpha(0);
 
 
     const arrowHeight = 60;
@@ -85,7 +95,18 @@ const PhaserContainer = () => {
   
       return arrow;
     });
-  
+
+    let fourthBeatKey;
+    const keyOptions = ['buttonA', 'buttonB'];
+
+    // Add the fourth beat key UI, initially hidden
+    fourthBeatKey = this.add.image(600, 500, keyOptions[0]).setVisible(true);
+
+    // Scale the fourth beat key to the rhythm bar height
+    const fourthKeyHeight = 60;
+    const scale = fourthKeyHeight / fourthBeatKey.height;
+    fourthBeatKey.setScale(scale);
+
     // Placeholder character information
     characterInfo = this.add.image(50, 300, 'characterUI');
 
@@ -122,9 +143,12 @@ const PhaserContainer = () => {
           //scoreText.setText('Score: ' + this.score);
           firstArrow.setVisible(false);
           arrows.shift(); // Remove from the array
-        }
 
-        console.log(arrows)
+          /*fourthBeatKey.setVisible(false);
+          setTimeout(() => {
+            fourthBeatKey.setVisible(true);
+          }, 200);*/
+        }
       }
     };
 
@@ -137,65 +161,69 @@ const PhaserContainer = () => {
         this.score += 1000;
         scoreText.setText('Score: ' + this.score);
         this.hitOnFourth = false; // Reset the boolean after a correct hit
+        fourthBeatKey.setVisible(false);
       }
     };
   
     const updateBeat = function () {
-      // Update to the next beat
       beatIndex = (beatIndex + 1) % beatsPerMeasure;
     
       // On the first beat, create new arrows
       if (beatIndex === 0) {
-        // Hide all existing arrows first
+        // Hide all existing arrows and generate a new set
         arrows.forEach((arrow) => arrow.setVisible(false));
     
-        // Create a new array for the new set of arrows to show
         let newArrows = [];
-    
-        // Randomly choose up to `maxArrows` indices
         const possibleArrows = ['arrowUp', 'arrowDown', 'arrowLeft', 'arrowRight'];
         const chosenArrows = Phaser.Utils.Array.Shuffle(possibleArrows).slice(0, maxArrows);
     
-        // Generate the new set of arrows and add them to the new array
         chosenArrows.forEach((arrowType, i) => {
-          const x = 350 + i * 50; // Adjust x-position spacing as needed
+          const x = 350 + i * 50;
           const newArrow = this.add.image(x, 500, arrowType).setVisible(true);
-    
-          // Scale to fit within the rhythm bar (height of 60)
           const scale = 60 / newArrow.height;
           newArrow.setScale(scale);
-    
           newArrows.push(newArrow);
         });
     
-        // Replace the old arrows array with the new set of arrows
         arrows = newArrows;
+
+        const randomKey = Phaser.Utils.Array.GetRandom(keyOptions);
+    
+        // Update the 4th beat key and make it visible
+        
+        setTimeout(() => {
+          fourthBeatKey.setTexture(randomKey).setVisible(true);
+        }, 10);
       }
     
-      // Flash red at beats 1-3, green on the 4th beat
+      // Randomly change and show the key on the 4th beat
       if (beatIndex === 3) {
         this.hitOnFourth = true;
+    
         setTimeout(() => {
-          this.hitOnFourth = false; // Reset after 200 ms
+          this.hitOnFourth = false;
+          //fourthBeatKey.setTexture(randomKey).setVisible(true);
         }, 200);
-        beatRectangle.setFillStyle(0x00ff00); // Green on the 4th beat
+    
+        beatRectangle.setFillStyle(0x226622); // Green on the 4th beat
       } else {
-        beatRectangle.setFillStyle(0xff0000); // Red on other beats
+        beatRectangle.setFillStyle(0x662222); // Red on other beats
       }
     
       // Flash the rectangle
       beatRectangle.setAlpha(1);
       this.time.delayedCall(200, () => beatRectangle.setAlpha(0));
     
-      // Flash effect for the HTML indicator using CSS classes
+      // Flash effect for HTML indicator
       if (beatIndicatorRef.current) {
         const flashClass = beatIndex === 3 ? 'flash-green' : 'flash-red';
         beatIndicatorRef.current.classList.add(flashClass);
         setTimeout(() => {
           beatIndicatorRef.current.classList.remove(flashClass);
-        }, 300); // Duration of the animation
+        }, 300);
       }
     };
+    
   
     // Timer to tick every 500 milliseconds (2 beats per second = 120 BPM)
     this.beatTimer = this.time.addEvent({
@@ -208,10 +236,13 @@ const PhaserContainer = () => {
     
   
     // Score display
-    scoreText = this.add.text(16, 16, 'Total Score: 0\nRhythm Score: 0', {
-      fontSize: '32px',
-      fill: '#ffffff'
-    });
+    scoreText = this.add.text(16, 16, 'Score: 0', {
+      font: '32px Arial',
+      fill: '#ffffff',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      padding: { x: 10, y: 5 },
+      borderRadius: 5
+    }).setScrollFactor(0).setDepth(100);
   
     
   
@@ -254,11 +285,11 @@ const PhaserContainer = () => {
   };
 
   return (
-    <div>
+    <div id="phaser-game-container">
       <div id="phaser-game" />
-      <div ref={beatIndicatorRef} style={{ width: '100px', height: '100px', backgroundColor: '#fff' }}>
+      {/*<div ref={beatIndicatorRef} style={{ width: '100px', height: '100px', backgroundColor: '#fff' }}>
         Beat Indicator
-      </div>
+      </div>*/}
     </div>
   );
 };
