@@ -61,6 +61,8 @@ const PhaserContainer = () => {
     // Initialize scores
     this.score = 0;
     this.rhythmScore = 0;
+    this.combo = 0;
+    this.comboBool = false;
   
     // 4/4 beat state
     this.beatIndex = 0;
@@ -185,11 +187,15 @@ const PhaserContainer = () => {
       // Only consider the key press if it's the 4th beat
       if (this.hitOnFourth && arrows.length === 0) {
         console.log(`${key} key pressed exactly on the 4th beat!`);
-        this.score += 1000;
+        this.comboBool = true;
+        this.combo++;
+        this.score += (100 * this.combo);
         scoreText.setText('Score: ' + this.score);
         this.sequence++;
         this.hitOnFourth = false; // Reset the boolean after a correct hit
         fourthBeatKey.setVisible(false);
+      }else{
+        this.comboBool = false;
       }
     };
   
@@ -198,6 +204,11 @@ const PhaserContainer = () => {
     
       // On the first beat, create new arrows
       if (beatIndex === 0) {
+
+        if (!this.comboBool) {
+          this.combo = 0;
+          this.sequence = 0;
+        }
         // Hide all existing arrows and generate a new set
         arrows.forEach((arrow) => arrow.setVisible(false));
     
