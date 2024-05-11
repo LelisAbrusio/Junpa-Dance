@@ -82,6 +82,41 @@ const PhaserContainer = () => {
     beatRectangle = this.add.rectangle(600, 500, 100, 100, 0xff0000);
     beatRectangle.setAlpha(0);
 
+    this.sequence = 0;
+    this.levelSequence = [
+      [],
+      ['arrowUp' ],
+      ['arrowUp', 'arrowDown'],
+      ['arrowUp', 'arrowDown', 'arrowUp'],
+      ['arrowLeft', 'arrowRight', 'arrowDown'],
+      ['arrowUp' ],
+      ['arrowUp', 'arrowDown'],
+      ['arrowUp', 'arrowDown', 'arrowDown'],
+      ['arrowLeft', 'arrowRight', 'arrowDown'],
+      ['arrowRight', 'arrowRight', 'arrowUp','arrowLeft'],
+      ['arrowLeft', 'arrowRight', 'arrowDown','arrowLeft'],
+      ['arrowUp' ],
+      ['arrowUp', 'arrowDown'],
+      ['arrowUp', 'arrowDown', 'arrowUp'],
+      ['arrowLeft', 'arrowRight', 'arrowDown'],
+      ['arrowUp' ],
+      ['arrowUp', 'arrowDown'],
+      ['arrowUp', 'arrowDown', 'arrowDown'],
+      ['arrowLeft', 'arrowRight', 'arrowDown'],
+      ['arrowRight', 'arrowRight', 'arrowUp','arrowLeft'],
+      ['arrowLeft', 'arrowRight', 'arrowDown','arrowLeft'],
+      ['arrowUp' ],
+      ['arrowUp', 'arrowDown'],
+      ['arrowUp', 'arrowDown', 'arrowUp'],
+      ['arrowLeft', 'arrowRight', 'arrowDown'],
+      ['arrowUp' ],
+      ['arrowUp', 'arrowDown'],
+      ['arrowUp', 'arrowDown', 'arrowDown'],
+      ['arrowLeft', 'arrowRight', 'arrowDown'],
+      ['arrowRight', 'arrowRight', 'arrowUp','arrowLeft'],
+      ['arrowLeft', 'arrowRight', 'arrowDown','arrowLeft'],
+    ];
+    
 
     const arrowHeight = 60;
     const arrowImages = ['arrowUp', 'arrowDown', 'arrowLeft', 'arrowRight'];
@@ -139,27 +174,20 @@ const PhaserContainer = () => {
           console.log(`${key} arrow key pressed, removing first arrow: ${firstArrow.texture.key}`);
           
           // Update score, remove the first arrow, and update display
-          //this.score += 1000;
-          //scoreText.setText('Score: ' + this.score);
+
           firstArrow.setVisible(false);
           arrows.shift(); // Remove from the array
-
-          /*fourthBeatKey.setVisible(false);
-          setTimeout(() => {
-            fourthBeatKey.setVisible(true);
-          }, 200);*/
         }
       }
     };
 
     const handleKeydown = (key) => {
-      
-
       // Only consider the key press if it's the 4th beat
       if (this.hitOnFourth && arrows.length === 0) {
         console.log(`${key} key pressed exactly on the 4th beat!`);
         this.score += 1000;
         scoreText.setText('Score: ' + this.score);
+        this.sequence++;
         this.hitOnFourth = false; // Reset the boolean after a correct hit
         fourthBeatKey.setVisible(false);
       }
@@ -175,7 +203,10 @@ const PhaserContainer = () => {
     
         let newArrows = [];
         const possibleArrows = ['arrowUp', 'arrowDown', 'arrowLeft', 'arrowRight'];
-        const chosenArrows = Phaser.Utils.Array.Shuffle(possibleArrows).slice(0, maxArrows);
+        //const chosenArrows = Phaser.Utils.Array.Shuffle(possibleArrows).slice(0, maxArrows);
+        const chosenArrows = this.levelSequence[this.sequence];
+
+        console.log(chosenArrows)
     
         chosenArrows.forEach((arrowType, i) => {
           const x = 350 + i * 50;
@@ -184,8 +215,9 @@ const PhaserContainer = () => {
           newArrow.setScale(scale);
           newArrows.push(newArrow);
         });
-    
+        
         arrows = newArrows;
+        console.log(arrows)
 
         const randomKey = Phaser.Utils.Array.GetRandom(keyOptions);
     
